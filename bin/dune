@@ -4,6 +4,11 @@
  (libraries helpers switch-builder))
 
 (executable
- (name dependency_closure)
- (modules Dependency_closure)
+ (name dependency_closure_sexp)
+ (modules Dependency_closure_sexp)
+ (libraries helpers switch-builder))
+
+(executable
+ (name opam_of_sexp)
+ (modules Opam_of_sexp)
  (libraries helpers switch-builder))

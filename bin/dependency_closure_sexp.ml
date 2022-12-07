@@ -5,9 +5,7 @@ let shrink_step ~assumed_deps repo packages =
     Helpers.find_conflict (OpamPackage.Set.elements packages) ~repo |> function
     | None -> packages
     | Some p ->
-        print_endline
-          (Printf.sprintf "Removed due to conflict: %s"
-             (OpamPackage.to_string p));
+        Printf.eprintf "Removed due to conflict: %s\n" (OpamPackage.to_string p);
         OpamPackage.Set.remove p packages
   in
   let ( with_unmet_deps_removed,
@@ -17,23 +15,20 @@ let shrink_step ~assumed_deps repo packages =
       (OpamPackage.Set.elements without_conflict)
       ~repo ~assumed_deps
   in
-  print_endline
-    (Printf.sprintf
-       "After removing packages with unmet deps there are %d packages"
-       (OpamPackage.Set.cardinal with_unmet_deps_removed));
+  Printf.eprintf
+    "After removing packages with unmet deps there are %d packages\n"
+    (OpamPackage.Set.cardinal with_unmet_deps_removed);
   List.iter
     (fun (package, dep_name) ->
-      print_endline
-        (Printf.sprintf "Removed %s (lacks dependency %s)"
-           (OpamPackage.to_string package)
-           (OpamPackage.Name.to_string dep_name)))
+      Printf.eprintf "Removed %s (lacks dependency %s)\n"
+        (OpamPackage.to_string package)
+        (OpamPackage.Name.to_string dep_name))
     had_missing_deps;
   List.iter
     (fun (package, dep_name) ->
-      print_endline
-        (Printf.sprintf "Removed %s (no compatible version of dependency %s)"
-           (OpamPackage.to_string package)
-           (OpamPackage.Name.to_string dep_name)))
+      Printf.eprintf "Removed %s (no compatible version of dependency %s)\n"
+        (OpamPackage.to_string package)
+        (OpamPackage.Name.to_string dep_name))
     had_incompatible_version_deps;
 
   with_unmet_deps_removed
@@ -43,9 +38,9 @@ let shrink_fixpoint ~assumed_deps repo =
     ~f:(shrink_step ~assumed_deps repo)
 
 let () =
-  let output_path, arch =
-    if Array.length Sys.argv < 3 then failwith "missing output file"
-    else (Array.get Sys.argv 1, Array.get Sys.argv 2)
+  let arch =
+    if Array.length Sys.argv < 2 then failwith "missing arch"
+    else Array.get Sys.argv 1
   in
 
   let repo = Helpers.cached_repo_with_overlay () in
@@ -94,9 +89,8 @@ let () =
            let available = Helpers.is_available opam ~arch in
            builds_with_dune && available)
   in
-  print_endline
-    (Printf.sprintf "Starting with set of %d packages..."
-       (OpamPackage.Set.cardinal latest_filtered));
+  Printf.eprintf "Starting with set of %d packages...\n"
+    (OpamPackage.Set.cardinal latest_filtered);
   let assumed_deps =
     OpamPackage.Name.Set.of_list
       (List.map OpamPackage.Name.of_string
@@ -113,6 +107,9 @@ let () =
   in
   let shrunk = shrink_fixpoint ~assumed_deps repo latest_filtered in
   print_endline
+    (OpamPackage.Set.elements shrunk |> Helpers.Packages.to_string_pretty)
+(*
+  print_endline
     (Printf.sprintf "final package count: %d" (OpamPackage.Set.cardinal shrunk));
   let opam_file = Helpers.pkg_set_to_opam_file shrunk in
   Helpers.write_opam_file opam_file ~path:output_path;
@@ -123,4 +120,4 @@ let () =
       |> String.concat " ")
   in
   Helpers.write_string_file dune_string ~path:"dist/dune";
-  print_endline (Printf.sprintf "Written opam file to: %s" output_path)
+  print_endline (Printf.sprintf "Written opam file to: %s" output_path) *)

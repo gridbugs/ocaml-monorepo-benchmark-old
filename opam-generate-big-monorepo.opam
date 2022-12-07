@@ -9,6 +9,7 @@ depends: [
   "dune" {>= "3.5" & >= "3.5.0"}
   "ocamlgraph"
   "opam-repository"
+  "yojson"
   "odoc" {with-doc}
 ]
 build: [
