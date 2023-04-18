@@ -133,3 +133,45 @@ let watch_mode_start t ~build_target ~stdio_redirect =
   Logs.info (fun m -> m "waiting for initial build to finish");
   wait_for_nth_build t 1;
   { Watch_mode.running; dune_session = t; trace_file }
+
+module Watch_mode_ = struct
+  type nonrec t = {
+    running : Command.Running.t;
+    dune_session : t;
+    trace_file : Trace_file.t;
+    rpc_handle : Dune_rpc_handle.t;
+  }
+
+  let stop { running; trace_file; _ } =
+    Logs.info (fun m -> m "stopping watch mode");
+    Command.Running.term running;
+    trace_file
+end
+
+let watch_mode_start_ t ~build_target ~stdio_redirect =
+  let open Lwt.Syntax in
+  let trace_file = Trace_file.random () in
+  Logs.info (fun m -> m "starting dune in watch mode");
+  Logs.info (fun m -> m "will store trace in %s" trace_file.path);
+  let running =
+    make_command t
+      [
+        "build";
+        build_target;
+        "-j";
+        "auto";
+        "--watch";
+        "--trace-file";
+        trace_file.path;
+      ]
+    |> Command.run_background ~stdio_redirect
+  in
+  let* rpc_handle =
+    Dune_rpc_handle.create_retrying ~workspace_root:t.workspace_root
+  in
+  print_endline "before ping";
+  let* () = Lwt_unix.sleep 2.0 in
+  print_endline "x";
+  let+ () = Dune_rpc_handle.ping rpc_handle in
+  let () = failwith "after ping" in
+  { Watch_mode_.running; dune_session = t; trace_file; rpc_handle }

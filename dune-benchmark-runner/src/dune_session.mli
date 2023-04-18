@@ -26,3 +26,15 @@ val watch_mode_start :
   build_target:string ->
   stdio_redirect:Command.Stdio_redirect.t ->
   Watch_mode.t
+
+module Watch_mode_ : sig
+  type t
+
+  val stop : t -> Trace_file.t
+end
+
+val watch_mode_start_ :
+  t ->
+  build_target:string ->
+  stdio_redirect:Command.Stdio_redirect.t ->
+  Watch_mode_.t Lwt.t

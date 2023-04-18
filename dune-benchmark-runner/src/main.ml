@@ -1,4 +1,51 @@
-let () =
+let main () =
+  let open Lwt.Syntax in
+  let {
+    Cli.dune_exe_path;
+    build_target;
+    monorepo_path;
+    skip_clean;
+    skip_one_shot;
+    print_dune_output;
+  } =
+    Cli.parse ()
+  in
+  Logs.set_reporter (Logs_fmt.reporter ());
+  Logs.set_level (Some Logs.Info);
+  let stdio_redirect = if print_dune_output then `This_process else `Ignore in
+  let dune_session =
+    Dune_session.create ~dune_exe_path ~workspace_root:monorepo_path
+  in
+  if not skip_clean then (
+    Logs.info (fun m -> m "Cleaning");
+    Dune_session.clean dune_session);
+  let measure_one_shot_build name =
+    let duration_secs =
+      Timing.measure_secs (fun () ->
+          Dune_session.build dune_session ~build_target ~stdio_redirect)
+    in
+    { Benchmark_result.name; duration_secs }
+  in
+  let _one_shot_benchmark_results =
+    if skip_one_shot then []
+    else (
+      Logs.info (fun m -> m "Building from scratch");
+      let build_from_scratch_benchmark_result =
+        measure_one_shot_build "build from scratch"
+      in
+      Logs.info (fun m -> m "Rebuilding after making no changes");
+      let null_build_benchmark_result = measure_one_shot_build "null build" in
+      [ build_from_scratch_benchmark_result; null_build_benchmark_result ])
+  in
+  let+ dune_watch_mode =
+    Dune_session.watch_mode_start_ dune_session ~build_target ~stdio_redirect
+  in
+  let _trace_file = Dune_session.Watch_mode_.stop dune_watch_mode in
+  ()
+
+let () = Lwt_main.run (main ())
+
+let old () =
   let {
     Cli.dune_exe_path;
     build_target;
