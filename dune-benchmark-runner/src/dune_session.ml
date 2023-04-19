@@ -21,35 +21,10 @@ let clean t = run_command_exn t [ "clean" ] ~stdio_redirect:`Ignore
 let build t ~build_target ~stdio_redirect =
   run_command_exn t [ "build"; build_target ] ~stdio_redirect
 
-let internal_build_count t =
-  let command = make_command t [ "internal"; "build-count" ] in
-  let output =
-    Command.run_blocking_stdout_string command
-    |> String.split_on_char '\n' |> List.hd
-  in
-  match int_of_string_opt output with
-  | Some build_count -> build_count
-  | None ->
-      failwith
-        (Printf.sprintf
-           "Unexpected output of `%s`. Expected an int, got \"%s\"."
-           (Command.to_string command)
-           output)
-
-let wait_for_rpc_server t =
-  let ping_command = make_command t [ "rpc"; "ping" ] in
+let wait_for_nth_build_via_rpc rpc_handle n =
   let delay_s = 0.5 in
   let rec loop () =
-    if Command.run_blocking_exn ping_command ~stdio_redirect:`Ignore <> 0 then (
-      Unix.sleepf delay_s;
-      loop ())
-  in
-  loop ()
-
-let wait_for_nth_build t n =
-  let delay_s = 0.5 in
-  let rec loop () =
-    if internal_build_count t < n then (
+    if Dune_rpc_handle.build_count rpc_handle < n then (
       Unix.sleepf delay_s;
       loop ())
   in
@@ -96,6 +71,7 @@ module Watch_mode = struct
     running : Command.Running.t;
     dune_session : t;
     trace_file : Trace_file.t;
+    rpc_handle : Dune_rpc_handle.t;
   }
 
   let stop { running; trace_file; _ } =
@@ -103,10 +79,10 @@ module Watch_mode = struct
     Command.Running.term running;
     trace_file
 
-  let build_count { dune_session; _ } = internal_build_count dune_session
+  let build_count { rpc_handle; _ } = Dune_rpc_handle.build_count rpc_handle
 
-  let wait_for_nth_build { dune_session; _ } n =
-    wait_for_nth_build dune_session n
+  let wait_for_nth_build { rpc_handle; _ } n =
+    wait_for_nth_build_via_rpc rpc_handle n
 
   let workspace_root { dune_session; _ } = dune_session.workspace_root
 end
@@ -128,50 +104,11 @@ let watch_mode_start t ~build_target ~stdio_redirect =
       ]
     |> Command.run_background ~stdio_redirect
   in
-  Logs.info (fun m -> m "waiting for rpc server to start");
-  wait_for_rpc_server t;
-  Logs.info (fun m -> m "waiting for initial build to finish");
-  wait_for_nth_build t 1;
-  { Watch_mode.running; dune_session = t; trace_file }
-
-module Watch_mode_ = struct
-  type nonrec t = {
-    running : Command.Running.t;
-    dune_session : t;
-    trace_file : Trace_file.t;
-    rpc_handle : Dune_rpc_handle.t;
-  }
-
-  let stop { running; trace_file; _ } =
-    Logs.info (fun m -> m "stopping watch mode");
-    Command.Running.term running;
-    trace_file
-end
-
-let watch_mode_start_ t ~build_target ~stdio_redirect =
-  let open Lwt.Syntax in
-  let trace_file = Trace_file.random () in
-  Logs.info (fun m -> m "starting dune in watch mode");
-  Logs.info (fun m -> m "will store trace in %s" trace_file.path);
-  let running =
-    make_command t
-      [
-        "build";
-        build_target;
-        "-j";
-        "auto";
-        "--watch";
-        "--trace-file";
-        trace_file.path;
-      ]
-    |> Command.run_background ~stdio_redirect
-  in
-  let* rpc_handle =
+  let rpc_handle =
     Dune_rpc_handle.create_retrying ~workspace_root:t.workspace_root
   in
-  print_endline "before ping";
-  let* () = Lwt_unix.sleep 2.0 in
-  print_endline "x";
-  let+ () = Dune_rpc_handle.ping rpc_handle in
-  let () = failwith "after ping" in
-  { Watch_mode_.running; dune_session = t; trace_file; rpc_handle }
+  Logs.info (fun m -> m "pinging RPC server to test connection");
+  Dune_rpc_handle.ping rpc_handle;
+  Logs.info (fun m -> m "waiting for initial build to finish");
+  wait_for_nth_build_via_rpc rpc_handle 1;
+  { Watch_mode.running; dune_session = t; trace_file; rpc_handle }

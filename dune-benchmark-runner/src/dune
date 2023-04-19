@@ -1,4 +1,3 @@
 (executable
   (name main)
-  (flags -w -69)
   (libraries unix logs logs.fmt re yojson dune-rpc dune-rpc-lwt))
