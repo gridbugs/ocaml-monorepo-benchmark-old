@@ -112,3 +112,26 @@ let watch_mode_start t ~build_target ~stdio_redirect =
   Logs.info (fun m -> m "waiting for initial build to finish");
   wait_for_nth_build_via_rpc rpc_handle 1;
   { Watch_mode.running; dune_session = t; trace_file; rpc_handle }
+
+let with_rpc_client_in_watch_mode t ~build_target ~stdio_redirect ~f =
+  let open Lwt.Syntax in
+  let trace_file = Trace_file.random () in
+  Logs.info (fun m -> m "starting dune in watch mode");
+  Logs.info (fun m -> m "will store trace in %s" trace_file.path);
+  let running =
+    make_command t
+      [
+        "build";
+        build_target;
+        "-j";
+        "auto";
+        "--watch";
+        "--trace-file";
+        trace_file.path;
+      ]
+    |> Command.run_background ~stdio_redirect
+  in
+  let+ () = Dune_rpc_client.with_client ~workspace_root:t.workspace_root ~f in
+  Logs.info (fun m -> m "stopping watch mode");
+  Command.Running.term running;
+  trace_file

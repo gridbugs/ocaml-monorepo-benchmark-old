@@ -26,3 +26,10 @@ val watch_mode_start :
   build_target:string ->
   stdio_redirect:Command.Stdio_redirect.t ->
   Watch_mode.t
+
+val with_rpc_client_in_watch_mode :
+  t ->
+  build_target:string ->
+  stdio_redirect:Command.Stdio_redirect.t ->
+  f:(Dune_rpc_client.t -> unit Lwt.t) ->
+  Trace_file.t Lwt.t
