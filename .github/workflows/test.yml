@@ -19,7 +19,7 @@ jobs:
       - name: Install ocaml dependencies
         run: opam install -y ocamlbuild dune logs fmt sexplib ppx_sexp_conv ocamlgraph opam-repository opam-monorepo
       - name: Make test project
-        run: mkdir /tmp/x && . ~/.profile && dune exec ./bin/dependency_closure.exe > /tmp/x/packages && ./mkopam.sh < /tmp/x/packages > /tmp/x/x.opam
+        run: mkdir /tmp/x && bash --login -c "dune exec ./bin/dependency_closure.exe" > /tmp/x/packages && ./mkopam.sh < /tmp/x/packages > /tmp/x/x.opam
       - name: Generate monorepo lockfile
         working-directory: /tmp/x
         run: opam monorepo lock
@@ -30,10 +30,10 @@ jobs:
         run: cp -rv generate/bench-proj/* generate/patches /tmp/x
       - name: Make list of dune libraries
         working-directory: /tmp/x
-        run: . ~/.profile && dune exec --display=quiet tools/list_duniverse_libraries.exe duniverse packages tools/library-ignore-list.sexp tools/run_dune_ml.sh > libraries.sexp
+        run: bash --login -c "dune exec tools/list_duniverse_libraries.exe duniverse packages tools/library-ignore-list.sexp tools/run_dune_ml.sh" > libraries.sexp
       - name: Generate monorepo dune file
         working-directory: /tmp/x
-        run: . ~/.profile && dune exec ./tools/dune_of_sexp.exe < libraries.sexp > dune.new && move dune.new dune
+        run: bash --login -c "dune exec ./tools/dune_of_sexp.exe" < libraries.sexp > dune.new && move dune.new dune
       - name: Minor package corrections
         working-directory: /tmp/x
         run: rm -rv duniverse/current_incr && cd duniverse/zelus && ./configure
@@ -42,4 +42,26 @@ jobs:
         run: for f in patches/*; do p=$(basename ${f%.diff}); echo Applying $p; patch -p1 -d duniverse/$p < $f; done
       - name: Build monorepo
         working-directory: /tmp/x
-        run: . ~/.profile && dune exec ./hello.exe
+        run: bash --login -c "dune exec ./hello.exe"
+
+  dune-benchmark-runner-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get install -y build-essential opam sudo pkg-config
+      - uses: actions/checkout@v3
+      - name: Setup opam
+        run: opam init --disable-sandboxing --auto-setup && opam switch create 4.14.1
+      - name: Add dune opam overlay
+        run: cp -rv generate/data/repos/opam-overlays /tmp/dune-universe && rm -rvf /tmp/dune-universe/.git && opam repository add dune-universe /tmp/dune-universe
+      - name: Install ocaml dependencies
+        run: opam install -y dune yojson logs fmt dune-rpc dune-rpc-lwt
+      - name: Build benchmark runner
+        working-directory: dune-benchmark-runner
+        run: bash --login -c "dune build"
+      - name: Set up small monorepo
+        working-directory: small-monorepo
+        run: opam monorepo pull || opam monorepo pull || opam monorepo pull
+      - name: Run benchmark
+        working-directory: dune-benchmark-runner
+        run: _build/default/src/main.exe --dune-exe-path=$(which dune) --monorepo-path ..//src/ocaml-monorepo-benchmark/small-monorepo --build-target=./small_monorepo.exe
