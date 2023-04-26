@@ -8,4 +8,4 @@ jobs:
   monorepo-generator-test:
     runs-on: ubuntu-latest
     steps:
-      - echo test
+      - run: echo test
