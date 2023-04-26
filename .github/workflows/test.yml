@@ -63,4 +63,4 @@ jobs:
         run: opam monorepo pull || opam monorepo pull || opam monorepo pull
       - name: Run benchmark
         working-directory: dune-benchmark-runner
-        run: _build/default/src/main.exe --dune-exe-path=$(which dune) --monorepo-path ..//src/ocaml-monorepo-benchmark/small-monorepo --build-target=./small_monorepo.exe
+        run: _build/default/src/main.exe --dune-exe-path=$(which dune) --monorepo-path=$(realpath ../small-monorepo) --build-target=./small_monorepo.exe
