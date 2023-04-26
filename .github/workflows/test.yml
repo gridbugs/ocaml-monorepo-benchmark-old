@@ -5,7 +5,8 @@ on:
     - '*'
 
 jobs:
-  Monorepo Generator Test:
+  monorepo-generator-test:
+    name: Monorepo Generator Test
     runs-on: ubuntu-latest
     steps:
       - name: Install dependencies
@@ -45,7 +46,8 @@ jobs:
         working-directory: /tmp/x
         run: bash --login -c "dune exec ./hello.exe"
 
-  Dune Benchmark Runner Test:
+  dune-benchmark-runner-test:
+    name: Dune Benchmark Runner Test
     runs-on: ubuntu-latest
     steps:
       - name: Install dependencies
