@@ -194,7 +194,7 @@ RUN opam switch bench
 # Apply some custom patches to some packages to fix build errors
 RUN mkdir -p patches
 COPY --chown=user:users patches/* ./patches/
-RUN bash -c 'for f in patches/*; do p=$(basename ${f%.diff}); echo Applying $p; patch -p1 -d duniverse/$p < $f; done'
+RUN bash -c 'for f in patches/*; do p=$(basename ${f%.diff}); if test -d $p; then echo Applying $p; patch -p1 -d duniverse/$p < $f; fi; done'
 
 # Prepare some packages that require initial setup before building with dune
 RUN cd duniverse/zelus && ./configure
