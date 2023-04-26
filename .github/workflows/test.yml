@@ -56,7 +56,7 @@ jobs:
       - name: Install ocaml dependencies
         run: opam install -y opam-monorepo dune yojson logs fmt re dune-rpc dune-rpc-lwt
       - name: Pin dune-rpc-lwt to fix bug in latest released version
-        run: opam pin add dune-rpc-lwt git://github.com/ocaml/dune
+        run: opam pin add dune-rpc-lwt git+https://github.com/ocaml/dune
       - name: Build benchmark runner
         working-directory: dune-benchmark-runner
         run: bash --login -c "dune build"
