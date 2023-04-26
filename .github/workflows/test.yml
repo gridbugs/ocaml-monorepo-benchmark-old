@@ -1,0 +1,11 @@
+name: test
+on:
+  push:
+    branches:
+    - '*'
+
+jobs:
+  monorepo-generator-test:
+    runs-on: ubuntu-latest
+    steps:
+      - echo test
