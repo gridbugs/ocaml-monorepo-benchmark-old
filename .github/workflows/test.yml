@@ -16,6 +16,11 @@ jobs:
         run: opam init --disable-sandboxing --auto-setup ./generate/data/repos/opam-repository && opam switch create 4.14.1
       - name: Add dune opam overlay
         run: cp -r generate/data/repos/opam-overlays /tmp/dune-universe && rm -rf /tmp/dune-universe/.git && opam repository add dune-universe /tmp/dune-universe
-
-
+      - name: Install ocaml dependencies
+        run: opam install -y dune logs fmt sexplib ppx_sexp_conv ocamlgraph opam-repository opam-monorepo
+      - name: Make test project
+        run: mkdir /tmp/x && dune exec ./bin/dependency_closure.exe > /tmp/x/packages && ./mkopam.sh < /tmp/x/packages > /tmp/x/x.opam
+      - name: Generate monorepo lockfile
+        working-directory: /tmp/x
+        run: opam monorepo lock
 
