@@ -40,7 +40,7 @@ jobs:
         run: bash --login -c "dune exec ./tools/dune_of_sexp.exe" < libraries.sexp > dune.new && mv dune.new dune
       - name: Apply package patches
         working-directory: /tmp/x
-        run: for f in patches/*; do p=$(basename ${f%.diff}); if test -d $p; then echo Applying $p; patch -p1 -d duniverse/$p < $f; fi; done
+        run: for f in patches/*; do p=$(basename ${f%.diff}); if test -d duniverse/$p; then echo Applying $p; patch -p1 -d duniverse/$p < $f; fi; done
       - name: Build monorepo
         working-directory: /tmp/x
         run: bash --login -c "dune exec ./hello.exe"
