@@ -29,15 +29,15 @@ jobs:
         run: opam monorepo pull || opam monorepo pull || opam monorepo pull
       - name: Copy temporary dune project files into monorepo
         run: cp -rv generate/bench-proj/* generate/patches /tmp/x
+      - name: Minor package corrections
+        working-directory: /tmp/x
+        run: rm -rv duniverse/current_incr && cd duniverse/zelus && ./configure
       - name: Make list of dune libraries
         working-directory: /tmp/x
         run: bash --login -c "dune exec tools/list_duniverse_libraries.exe duniverse packages tools/library-ignore-list.sexp tools/run_dune_ml.sh" > libraries.sexp
       - name: Generate monorepo dune file
         working-directory: /tmp/x
         run: bash --login -c "dune exec ./tools/dune_of_sexp.exe" < libraries.sexp > dune.new && move dune.new dune
-      - name: Minor package corrections
-        working-directory: /tmp/x
-        run: rm -rv duniverse/current_incr && cd duniverse/zelus && ./configure
       - name: Apply package patches
         working-directory: /tmp/x
         run: for f in patches/*; do p=$(basename ${f%.diff}); echo Applying $p; patch -p1 -d duniverse/$p < $f; done
@@ -54,7 +54,7 @@ jobs:
       - name: Setup opam
         run: opam init --disable-sandboxing --auto-setup && opam switch create 4.14.1
       - name: Install ocaml dependencies
-        run: opam install -y dune yojson logs fmt dune-rpc dune-rpc-lwt
+        run: opam install -y dune yojson logs fmt re dune-rpc dune-rpc-lwt
       - name: Build benchmark runner
         working-directory: dune-benchmark-runner
         run: bash --login -c "dune build"
