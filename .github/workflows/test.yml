@@ -11,4 +11,10 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install -y build-essential opam sudo pkg-config neovim autoconf curl
       - uses: actions/checkout@v3
-      - run: ls
+      - name: Setup opam
+        run: opam init --disable-sandboxing --auto-setup ./generate/data/repos/opam-repository && opam switch create 4.14.1
+      - name: Add dune opam overlay
+        run: cp -r generate/data/repos/opam-overlays /tmp/dune-universe && rm -rf /tmp/dune-universe/.git && opam repository add dune-universe /tmp/dune-universe
+
+
+
