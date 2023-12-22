@@ -1,0 +1,14 @@
+Fixes a syntax error in dune-project.
+
+diff --git a/dune-project b/dune-project
+index 343791e..27042ae 100644
+--- a/dune-project
++++ b/dune-project
+@@ -19,6 +19,5 @@
+  (homepage https://baguettesharp.fr)
+  (synopsis "The Baguette# Interpreter REPL")
+  (description "The REPL for Baguette#")
+- (depends
+- {"ocaml">=4.13.1})
++ (depends (ocaml (>= 4.13.1)))
+  )

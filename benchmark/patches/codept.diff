@@ -1,0 +1,15 @@
+Fixes a syntax error in dune-project.
+
+diff --git a/dune-project b/dune-project
+index d014d06..f8bf85f 100644
+--- a/dune-project
++++ b/dune-project
+@@ -15,7 +15,7 @@
+   (version 0.11.0)
+   (license GPL-3.0-or-later)
+   (synopsis "Alternative ocaml dependency analyzer")
+-  (depends dune menhir {build & >= 20180523})
++  (depends dune menhir (and :build (>= 20180523)))
+   (description "Codept intends to be a dependency solver for OCaml project and an alternative to ocamldep. Compared to ocamldep, codept major features are:
+ 
+  * whole project analysis
