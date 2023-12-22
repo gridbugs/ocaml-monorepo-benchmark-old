@@ -4696,7 +4696,7 @@ pin-depends: [
   ]
   [
     "base32.1.0.0"
-    "https://inqlab.net/projects/ocaml-base32/release/ocaml-base32-v1.0.0.tar.gz"
+    "https://github.com/gridbugs/opam-source-archives/raw/base32.1.0.0/base32-1.0.0.tar.gz"
   ]
   [
     "base64.3.5.1"
@@ -5108,7 +5108,7 @@ pin-depends: [
   ["cbor.0.5" "https://ygrek.org/p/release/ocaml-cbor/ocaml-cbor-0.5.tar.gz"]
   [
     "cborl.0.1.0"
-    "https://inqlab.net/projects/ocaml-cborl/release/ocaml-cborl-v0.1.0.tar.gz"
+    "https://github.com/gridbugs/opam-source-archives/raw/cborl.0.1.0/cborl-0.1.0.tar.gz"
   ]
   [
     "ccbg.0.1"
@@ -7858,7 +7858,7 @@ pin-depends: [
   ]
   [
     "monocypher.0.1.0"
-    "https://inqlab.net/projects/ocaml-monocypher/release/ocaml-monocypher-v0.1.0.tar.gz"
+    "https://github.com/gridbugs/opam-source-archives/raw/monocypher.0.1.0/monocypher-0.1.0.tar.gz"
   ]
   [
     "monomorphic.2.1.0"
@@ -7898,7 +7898,7 @@ pin-depends: [
   ]
   [
     "mugen.0.1.0"
-    "https://github.com/RedPRL/mugen/archive/refs/tags/0.1.0.tar.gz"
+    "https://github.com/gridbugs/opam-source-archives/raw/mugen.0.1.0/mugen-0.1.0.tar.gz"
   ]
   [
     "mula.0.1.2"
@@ -11903,7 +11903,7 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "https://github.com/RedPRL/mugen/archive/refs/tags/0.1.0.tar.gz"
+    "https://github.com/gridbugs/opam-source-archives/raw/mugen.0.1.0/mugen-0.1.0.tar.gz"
     "mugen"
     [
       "md5=18d13a806906d47b31bd586f956c1b7e"
@@ -19161,7 +19161,7 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "https://inqlab.net/projects/ocaml-base32/release/ocaml-base32-v1.0.0.tar.gz"
+    "https://github.com/gridbugs/opam-source-archives/raw/base32.1.0.0/base32-1.0.0.tar.gz"
     "ocaml-base32"
     [
       "md5=04f0113150261bae2075381c18c6e60c"
@@ -19169,7 +19169,7 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "https://inqlab.net/projects/ocaml-cborl/release/ocaml-cborl-v0.1.0.tar.gz"
+    "https://github.com/gridbugs/opam-source-archives/raw/cborl.0.1.0/cborl-0.1.0.tar.gz"
     "ocaml-cborl"
     [
       "md5=855106fd1a3bed94af232eb168a51fd0"
@@ -19177,7 +19177,7 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "https://inqlab.net/projects/ocaml-monocypher/release/ocaml-monocypher-v0.1.0.tar.gz"
+    "https://github.com/gridbugs/opam-source-archives/raw/monocypher.0.1.0/monocypher-0.1.0.tar.gz"
     "ocaml-monocypher"
     [
       "md5=7d1350d7df38e2420f1fbd1567e553d8"
